@@ -548,11 +548,22 @@ class SERVER_BE:
                conn.send(bytes("SUCCESS", "utf-8"))  # confirm
                #--------------------------------------------------------------------
 
+               #----------------Receive fileName-----------------------
+               fileName= str(conn.recv(4096), "utf-8")
+               conn.send(bytes("SUCCESS", "utf-8"))  # confirm
+               #--------------------------------------------------------------------
+                
+               #----------------Receive magnet text-----------------------
+               magnet_text= str(conn.recv(4096), "utf-8")
+               conn.send(bytes("SUCCESS", "utf-8"))  # confirm
+               #--------------------------------------------------------------------
+                
+                
                # Cập nhật hoặc thêm info_hash vào mảng trong cơ sở dữ liệu
                client_db.update_one(
                  {"ip_add": peerHost, "ip_port": peerPort},
-                 {"$addToSet": {"info_hash": info_hash}}  # Sử dụng $addToSet để thêm mà không trùng lặp
-               )                    
+                 {"$addToSet": {"info_hash": info_hash,"files": {"fileName": fileName, "magnet_text":magnet_text}}}  # Sử dụng $addToSet để thêm mà không trùng lặp
+               )                     
         elif typeOfRequest== "Download":
                   self.implementDownload(conn)             
         elif typeOfRequest== "fileExist":
