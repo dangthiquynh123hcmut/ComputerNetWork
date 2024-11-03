@@ -542,7 +542,7 @@ class PEER_FE(ctk.CTk):
     torrent_file_path = self.create_torrent(filePathUpload)
     info = self.create_magnet_link(torrent_file_path)
 
-    condition= Thread(target= PEER_BEObject.implementSharing, args= [info[0], filePathUpload])
+    condition= Thread(target= PEER_BEObject.implementSharing, args= [info[0], filePathUpload, info[1]])
     condition.start()
     self.show_magnet_link(info[1])
     self.switch_frame(self.executeUploadButton)
@@ -833,7 +833,7 @@ class PEER_BE():
     peerConnectServerSocket.close()
     #-------------------
     
-  def implementSharing(self, info_hash, file_path):
+  def implementSharing(self, info_hash, file_path, magnet_text):
     try:
       #-------------------- socket initial-------------------
       peerConnectServerSocket= socket.socket()
@@ -856,6 +856,17 @@ class PEER_BE():
       peerConnectServerSocket.send(bytes(str(self.peerPort), "utf-8"))
       peerConnectServerSocket.recv(4096)  # success
       #------------------------------------------------------------
+      
+      #----------------Send fileName--------------------
+      fileName = os.path.basename(file_path)
+      peerConnectServerSocket.send(bytes(str(fileName),"utf-8"))
+      peerConnectServerSocket.recv(4096)
+      #------------------------------------------------------------
+      
+      #----------------Send magnet text--------------------
+      peerConnectServerSocket.send(bytes(str(magnet_text),"utf-8"))
+      peerConnectServerSocket.recv(4096)
+      #------------------------------------------------------------        
       
       #---------------send cancel command to close the connection---------------------
       peerConnectServerSocket.send(bytes("Cancel", "utf-8"))
