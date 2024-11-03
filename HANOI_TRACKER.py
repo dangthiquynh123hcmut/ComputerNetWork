@@ -365,7 +365,8 @@ class SERVER_BE:
     #----------------implement find list of peers--------------------------------------------------
     documents = client_db.find(
       {
-        "info_hash":info_hash
+        "info_hash":info_hash,
+        "state": { "$ne": "off" }
       },
       {
         "ip_add":1,

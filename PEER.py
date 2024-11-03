@@ -145,7 +145,7 @@ class PEER_FE(ctk.CTk):
   
   def executeChooseTrackerButton(self, location):
     if location == "HaNoi":
-      PEER_BEObject.serverHost = "172.22.112.1"
+      PEER_BEObject.serverHost = "172.31.0.1"
       PEER_BEObject.serverPort = 85
       self.nameServer = "Ha Noi Server"
     elif location == "HoChiMinh":
@@ -272,42 +272,15 @@ class PEER_FE(ctk.CTk):
     else:
       messagebox.showerror("ERROR", result)
       return
-    
-  def connectToServer(self):
-      
-    home_page = ctk.CTkLabel(self.frameConnectToServer, text="JOIN TO NETWORK", font=("Arial",40,"bold"))
-    home_page.place(relx = 0.5, rely = 0.3, anchor = tk.CENTER)
-  
-    serverHost = ctk.CTkLabel(self.frameConnectToServer, text="Server host", font=("Arial",20,"bold"))
-    serverHost.place(relx = 0.2, rely=0.5, anchor = tk.CENTER)
-    
-    serverHostEntry = ctk.CTkEntry(self.frameConnectToServer, placeholder_text="Host", width=300, height=7)
-    serverHostEntry.place(relx = 0.5, rely = 0.5, anchor = tk.CENTER)
 
-    serverPort = ctk.CTkLabel(self.frameConnectToServer, text="Server port", font=("Arial",20,"bold"))
-    serverPort.place(relx = 0.2, rely=0.6, anchor = tk.CENTER)
-    
-    serverPortEntry = ctk.CTkEntry(self.frameConnectToServer, placeholder_text="Port", width=300, height=7)
-    serverPortEntry.place(relx = 0.5, rely = 0.6, anchor = tk.CENTER)
+  def signout(self):
+    result = messagebox.askyesno("Confirm", "Are you sure?")
+    if result:
+      PEER_BEObject.stateClose()
+      self.switch_frame(self.initialPage)
+    else:
+      return
 
-    button_connect = ctk.CTkButton(self.frameConnectToServer, text="CONNECT TO SERVER", font=("Arial",15,"bold"), 
-                                    command= lambda:self.executeConnectToServerButton(serverHostEntry, serverPortEntry))
-    button_connect.place(relx = 0.5, rely = 0.8, anchor = tk.CENTER)
-    
-    return self.frameConnectToServer
-  
-  def executeConnectToServerButton(self, serverHost, serverPort):
-    self.ServerHost= str(serverHost.get())
-    self.ServerPort= int(serverPort.get())
-    
-    PEER_BEObject.serverHost= self.ServerHost
-    PEER_BEObject.serverPort= self.ServerPort
-    
-    PEER_BEObject.implementJoinToLAN()
-    
-    messagebox.showinfo("Successful", "Connected to Server!")
-    self.switch_frame(self.mainPage)
-    
   def mainPage(self):
       
     frame_label = ctk.CTkLabel(self.frameMainPage, text=self.nameServer, font=("Arial",40,"bold"))
@@ -333,7 +306,11 @@ class PEER_FE(ctk.CTk):
                                         command=lambda:self.switch_frame(self.executeDownloadButton))
     self.btn_download.place(relx=0.67,rely = 0.7,anchor =tk.CENTER)
     #----------------------------------------------------------------------------------------
-    
+    #--------------------------Button SIGNOUT------------------------------------------------
+    button_sign_out = ctk.CTkButton(self.frameMainPage, text="SIGN OUT", font=("Arial",15,"bold"), 
+                                    command= self.signout)
+    button_sign_out.place(relx = 0.9, rely = 0.05, anchor = tk.CENTER)
+    #----------------------------------------------------------------------------------------
     #----------------------------Button CHANGE THEME--------------------------------------------------------
     """self.btn_show_listpeer = ctk.CTkButton(self.frameMainPage, text="CHANGE THEME", font=("Arial", 20, "bold"),
                                             command= self.changeTheme)
@@ -368,10 +345,16 @@ class PEER_FE(ctk.CTk):
                                 command=lambda:(self.getFileUpload(upload_entry)))      
     btn_upload.place(relx = 0.5,rely=0.7,anchor = CENTER)
   
-    
+
     btn_view_repo=ctk.CTkButton(self.frameExecuteUploadButton,text="FILE UPLOADED", font=("Arial", 20,"bold"),
                           command =lambda:self.animatePaneUpload.animate())
     btn_view_repo.place(relx= 0.7, rely= 0.7, anchor= tk.CENTER)
+    
+    #--------------------------Button SIGNOUT------------------------------------------------
+    button_sign_out = ctk.CTkButton(self.frameExecuteUploadButton, text="SIGN OUT", font=("Arial",15,"bold"), 
+                                    command= self.signout)
+    button_sign_out.place(relx = 0.9, rely = 0.05, anchor = tk.CENTER)
+    #----------------------------------------------------------------------------------------
     
     list_header=ctk.CTkLabel(self.animatePaneUpload, text = " LIST FILES ", font=("Comic Sans",30,"bold"))
     list_header.place(relx=0.5,rely=0.1,anchor=ctk.CENTER)
@@ -574,7 +557,6 @@ class PEER_FE(ctk.CTk):
     self.outputFileUpload.see(ctk.END)
     self.outputFileUpload.configure(state=DISABLED)
 
-
   def showMoment(self):
     frame = ctk.CTkFrame(self,width=(WIDTH + 120),height=700)
 
@@ -612,7 +594,12 @@ class PEER_FE(ctk.CTk):
                                 command=lambda:(self.getFileDownload(upload_entry)))      
     btn_upload.place(relx = 0.5,rely=0.85,anchor = CENTER)
   
-    
+    #--------------------------Button SIGNOUT------------------------------------------------
+    button_sign_out = ctk.CTkButton(self.frameExecuteDownloadButton, text="SIGN OUT", font=("Arial",15,"bold"), 
+                                    command= self.signout)
+    button_sign_out.place(relx = 0.9, rely = 0.05, anchor = tk.CENTER)
+    #----------------------------------------------------------------------------------------
+
     btn_view_repo=ctk.CTkButton(self.frameExecuteDownloadButton,text="FILE DOWNLOADED", font=("Arial", 20,"bold"),
                           command =lambda: self.animatePanelDownload.animate())
     btn_view_repo.place(relx= 0.75, rely= 0.85, anchor= tk.CENTER)
@@ -1166,7 +1153,7 @@ class PEER_BE():
       #--------------------------------------------------------------------
 
       #--------------------------------------------------------------------
-      data = peerconn.recv(4096).decode('utf-8')
+      data = peerconn.recv(10*1024).decode('utf-8')
       torrent_info = json.loads(data)
       peerconn.send(bytes("SUCCESS", "utf-8"))
       #--------------------------------------------------------------------
@@ -1218,6 +1205,9 @@ class PEER_BE():
       peerConnectServerSocket.recv(4096)  # success
       peerConnectServerSocket.close()
       #---------------------------------------------------------------------
+      if len(list_peer) == 0:
+        messagebox.showinfo("Not success","Now there are no active peer that has this file/folder!")
+        return
       torrent_info = self.getTorrentInfo(file_name, list_peer[0])
       #---------------------------------------------------------------------
 
