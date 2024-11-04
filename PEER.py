@@ -1302,6 +1302,7 @@ class PEER_BE():
                     print(f"Lỗi: Thiếu dữ liệu cho mảnh {index} của tệp {file_path}")
 
       print("DOWNLOAD SUCCESS")
+      messagebox.showinfo("notification","DOWNLOAD SUCCESS!")
     except (socket.timeout, socket.error) as e:
        print(f"Network error occurred: {e}")
       
