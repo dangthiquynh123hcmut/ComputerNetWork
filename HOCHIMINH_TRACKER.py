@@ -266,10 +266,8 @@ class SERVER_FE(ctk.CTk):
         self.outputFileOnSystem.configure(state= NORMAL)
         counter= 1
         self.outputFileOnSystem.delete(1.0, ctk.END)
-        for iterator in SERVER_BEObject.listFileShared:
-            self.outputFileOnSystem.insert(ctk.END, f"{counter}. fileName: \"{iterator.fileName}\"." + "\n")
-            for peer in iterator.informPeerLocal:
-                self.outputFileOnSystem.insert(ctk.END, f"      [PeerHost: {peer[1]}, PeerPort: {peer[2]}]" + "\n")
+        for fileName in SERVER_BEObject.listFileShared:
+            self.outputFileOnSystem.insert(ctk.END, f"{counter}. fileName: \"{fileName}\"." + "\n")
             self.outputFileOnSystem.insert(ctk.END, "\n")
             counter+= 1
         self.outputFileOnSystem.see(ctk.END)
@@ -306,7 +304,7 @@ class SERVER_BE:
   def __init__(self, serverHost, serverPort):
     self.listPeer= []
     self.listFileExist= []
-    self.listFileShared= []
+    self.listFileShared= set()
     
     self.serverHost= serverHost
     self.serverPort= serverPort
@@ -552,6 +550,8 @@ class SERVER_BE:
                #----------------Receive fileName-----------------------
                fileName= str(conn.recv(4096), "utf-8")
                conn.send(bytes("SUCCESS", "utf-8"))  # confirm
+               self.listFileShared.add(fileName)
+               SERVER_FEObject.showListFileOnSystem()
                #--------------------------------------------------------------------
                 
                #----------------Receive magnet text-----------------------

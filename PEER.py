@@ -149,7 +149,7 @@ class PEER_FE(ctk.CTk):
       PEER_BEObject.serverPort = 85
       self.nameServer = "Ha Noi Server"
     elif location == "HoChiMinh":
-      PEER_BEObject.serverHost = "172.22.112.1"
+      PEER_BEObject.serverHost = "172.31.0.1"
       PEER_BEObject.serverPort = 85
       self.nameServer = "Ho Chi Minh Server"
     self.switch_frame(self.accountPage)
