@@ -266,6 +266,8 @@ class PEER_FE(ctk.CTk):
     result = PEER_BEObject.validationAccount(user)
     if result == 'SUCCESS':
       self.flagLogIn = True
+      self.username = username
+      self.password = password
       messagebox.showinfo("Successful", "Login success")
       PEER_BEObject.implementJoinToLAN()
       self.switch_frame(self.mainPage)
@@ -725,6 +727,8 @@ class PEER_BE():
     peerInform= pickle.dumps([self.peerHost, self.peerPort])
     peerConnectServerSocket.sendall(peerInform)
     peerConnectServerSocket.recv(4096) # success
+    peerConnectServerSocket.send(bytes(PEER_FEObject.username, "utf-8"))
+    peerConnectServerSocket.recv(4096)
     #--------------------------------------------------------------
 
     #---------------send cancel command to close the connection---------------------

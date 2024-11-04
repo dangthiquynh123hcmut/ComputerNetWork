@@ -335,7 +335,9 @@ class SERVER_BE:
      user = client_db.find_one({"username":username})
      if user:
         #check password
-        if user['password'] == password:
+        if user['state'] != 'off':
+            return "This account is being used!"
+        elif user['password'] == password:
            return "SUCCESS"
         else:
           return "wrong password"
@@ -410,8 +412,8 @@ class SERVER_BE:
       
     conn.send(bytes("SUCCESS", "utf-8"))"""
     
-  def updateState(self, state, PeerHost):
-     client_db.update_one({"ip_add": PeerHost},{"$set": {"state": state}})
+  def updateState(self, state, PeerHost, username):
+     client_db.update_one({"ip_add":PeerHost ,"username": username},{"$set": {"state": state}})
 
   def implementListenPeer(self):
     self.serverSocket.bind((self.serverHost, self.serverPort))
@@ -590,7 +592,7 @@ class SERVER_BE:
                           peerInform= pickle.loads(conn.recv(4096))
                           client_db.update_one({"username":data['username']},{"$set": {"ip_add": peerInform[0],
                                                                                         "ip_port": peerInform[1]}})
-                          self.updateState("on", peerInform[0])
+                          self.updateState("on", peerInform[0], data['username'])
                           conn.send(bytes("SUCCESS", "utf-8"))  # confirm
                           
                           #------------------------------------------------------------
@@ -599,10 +601,13 @@ class SERVER_BE:
         elif typeOfRequest == "Close the App":
                         #conn.send(bytes("SUCCESS", "utf-8"))
                         peerInform= pickle.loads(conn.recv(4096))
-                        self.updateState("off", peerInform[0])
+                        conn.send(bytes("SUCCESS", "utf-8"))
+                        username = conn.recv(4096)
+                        username = username.decode("utf-8")
+                        conn.send(bytes("SUCCESS", "utf-8"))
+                        self.updateState("off", peerInform[0],username)
                         SERVER_FEObject.showPeers("off",peerInform)
                         SERVER_FEObject.showStatusCenter(typeOfRequest, peerInform[0], peerInform[1], "")
-                        conn.send(bytes("SUCCESS", "utf-8"))
     except Exception as e:
       print(f"Error occurred: {e}")
     finally:
