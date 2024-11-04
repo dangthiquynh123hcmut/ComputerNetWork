@@ -303,7 +303,7 @@ class SERVER_BE:
   def __init__(self, serverHost, serverPort):
     self.listPeer= []
     self.listFileExist= []
-    self.listFileShared= []
+    self.listFileShared= set()
     
     self.serverHost= serverHost
     self.serverPort= serverPort
@@ -549,7 +549,7 @@ class SERVER_BE:
                #----------------Receive fileName-----------------------
                fileName= str(conn.recv(4096), "utf-8")
                conn.send(bytes("SUCCESS", "utf-8"))  # confirm
-               self.listFileShared.append(fileName)
+               self.listFileShared.add(fileName)
                SERVER_FEObject.showListFileOnSystem()
                #--------------------------------------------------------------------
                 
