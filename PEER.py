@@ -343,12 +343,12 @@ class PEER_FE(ctk.CTk):
     
     btn_upload = ctk.CTkButton(self.frameExecuteUploadButton, text="UPLOAD", font=("Arial", 20,"bold"),
                                 command=lambda:(self.getFileUpload(upload_entry)))      
-    btn_upload.place(relx = 0.5,rely=0.7,anchor = CENTER)
+    btn_upload.place(relx = 0.7,rely=0.7,anchor = CENTER)
   
 
-    btn_view_repo=ctk.CTkButton(self.frameExecuteUploadButton,text="FILE UPLOADED", font=("Arial", 20,"bold"),
-                          command =lambda:self.animatePaneUpload.animate())
-    btn_view_repo.place(relx= 0.7, rely= 0.7, anchor= tk.CENTER)
+    # btn_view_repo=ctk.CTkButton(self.frameExecuteUploadButton,text="FILE UPLOADED", font=("Arial", 20,"bold"),
+    #                       command =lambda:self.animatePaneUpload.animate())
+    # btn_view_repo.place(relx= 0.7, rely= 0.7, anchor= tk.CENTER)
     
     #--------------------------Button SIGNOUT------------------------------------------------
     button_sign_out = ctk.CTkButton(self.frameExecuteUploadButton, text="SIGN OUT", font=("Arial",15,"bold"), 
@@ -356,8 +356,8 @@ class PEER_FE(ctk.CTk):
     button_sign_out.place(relx = 0.9, rely = 0.05, anchor = tk.CENTER)
     #----------------------------------------------------------------------------------------
     
-    list_header=ctk.CTkLabel(self.animatePaneUpload, text = " LIST FILES ", font=("Comic Sans",30,"bold"))
-    list_header.place(relx=0.5,rely=0.1,anchor=ctk.CENTER)
+    # list_header=ctk.CTkLabel(self.animatePaneUpload, text = " LIST FILES ", font=("Comic Sans",30,"bold"))
+    # list_header.place(relx=0.5,rely=0.1,anchor=ctk.CENTER)
     # list_header.pack()
 
     return self.frameExecuteUploadButton
@@ -570,8 +570,8 @@ class PEER_FE(ctk.CTk):
     header_upload = ctk.CTkLabel(self.frameExecuteDownloadButton, text="DOWNLOAD FILE", font=("Arial", 40,"bold"))
     header_upload.place(relx = 0.5,rely=0.1,anchor = CENTER)
     
-    listOfFile = ctk.CTkLabel(self.frameExecuteDownloadButton, text="LIST OF FILES", font=("Arial", 20,"bold"))
-    listOfFile.place(relx = 0.5,rely=0.2,anchor = CENTER)
+    # listOfFile = ctk.CTkLabel(self.frameExecuteDownloadButton, text="LIST OF FILES", font=("Arial", 20,"bold"))
+    # listOfFile.place(relx = 0.5,rely=0.2,anchor = CENTER)
  
     self.textFileExist.place(relx=0.5,rely=0.44,anchor=ctk.CENTER,relwidth=0.3,relheight=0.4)
     self.textFileExist.configure(state=DISABLED)
@@ -592,7 +592,7 @@ class PEER_FE(ctk.CTk):
     
     btn_upload = ctk.CTkButton(self.frameExecuteDownloadButton, text="DOWNLOAD", font=("Arial", 20,"bold"),
                                 command=lambda:(self.getFileDownload(upload_entry)))      
-    btn_upload.place(relx = 0.5,rely=0.85,anchor = CENTER)
+    btn_upload.place(relx = 0.7,rely=0.85,anchor = CENTER)
   
     #--------------------------Button SIGNOUT------------------------------------------------
     button_sign_out = ctk.CTkButton(self.frameExecuteDownloadButton, text="SIGN OUT", font=("Arial",15,"bold"), 
@@ -600,13 +600,13 @@ class PEER_FE(ctk.CTk):
     button_sign_out.place(relx = 0.9, rely = 0.05, anchor = tk.CENTER)
     #----------------------------------------------------------------------------------------
 
-    btn_view_repo=ctk.CTkButton(self.frameExecuteDownloadButton,text="FILE DOWNLOADED", font=("Arial", 20,"bold"),
-                          command =lambda: self.animatePanelDownload.animate())
-    btn_view_repo.place(relx= 0.75, rely= 0.85, anchor= tk.CENTER)
+    # btn_view_repo=ctk.CTkButton(self.frameExecuteDownloadButton,text="FILE DOWNLOADED", font=("Arial", 20,"bold"),
+    #                       command =lambda: self.animatePanelDownload.animate())
+    # btn_view_repo.place(relx= 0.75, rely= 0.85, anchor= tk.CENTER)
     
-    list_header=ctk.CTkLabel(self.animatePanelDownload, text = " LIST FILES ", font=("Comic Sans",30,"bold")
-                              )
-    list_header.place(relx=0.5,rely=0.1,anchor=ctk.CENTER)
+    # list_header=ctk.CTkLabel(self.animatePanelDownload, text = " LIST FILES ", font=("Comic Sans",30,"bold")
+    #                           )
+    # list_header.place(relx=0.5,rely=0.1,anchor=ctk.CENTER)
     # list_header.pack()
 
     return self.frameExecuteDownloadButton
