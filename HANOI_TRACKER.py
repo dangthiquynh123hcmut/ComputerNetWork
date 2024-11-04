@@ -1,3 +1,4 @@
+import hashlib
 import json
 import signal
 import sys
@@ -322,6 +323,8 @@ class SERVER_BE:
 
      user = client_db.find_one({"username": username})
      if user is None:
+        new_user['password'] = hashed_password = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        new_user['state'] = 'off'
         result = client_db.insert_one(new_user)
         return 'SUCCESS'
      else:
@@ -329,7 +332,7 @@ class SERVER_BE:
   
   def implementValidLogIn(self, user):
      username = user['username']
-     password = user['password']
+     password = hashlib.sha256(user['password'].encode('utf-8')).hexdigest()
 
      user = client_db.find_one({"username":username})
      if user:
