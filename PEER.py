@@ -1078,7 +1078,7 @@ class PEER_BE():
             number_of_pieces = int(str(conn.recv(4096), "utf-8"))
             conn.send(bytes("SUCCESS", "utf-8"))
             # Giải mã JSON thành mảng
-            data = conn.recv(4096)
+            data = conn.recv(50 * 1024)
             all_piece_indices = json.loads(data.decode()) # Giải mã JSON thành mảng
             conn.send(bytes("SUCCESS", "utf-8")) #confirm
             #-----------------------------------------------------------------
@@ -1187,8 +1187,11 @@ class PEER_BE():
       #--------------------------------------------------------------------
 
       #--------------------------------------------------------------------
-      data = peerconn.recv(10*1024).decode('utf-8')
-      torrent_info = json.loads(data)
+      data = peerconn.recv(500*1024).decode('utf-8')
+      try:
+        torrent_info = json.loads(data)
+      except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e} - Data: {data}") 
       peerconn.send(bytes("SUCCESS", "utf-8"))
       #--------------------------------------------------------------------
 
@@ -1221,9 +1224,9 @@ class PEER_BE():
       #-------------------------------------------------------------------
       
       #--------------------Send peerHost and peerPort----------------------
-      peerConnectServerSocket.send(bytes(serverhost, "utf-8"))
+      peerConnectServerSocket.send(bytes(self.peerHost, "utf-8"))
       peerConnectServerSocket.recv(4096)  # success
-      peerConnectServerSocket.send(bytes(str(serverport), "utf-8"))
+      peerConnectServerSocket.send(bytes(str(self.peerPort), "utf-8"))
       peerConnectServerSocket.recv(4096)  # success
       #--------------------------------------------------------------------
       
@@ -1232,8 +1235,10 @@ class PEER_BE():
       # Nhận danh sách peer
       data = peerConnectServerSocket.recv(4096).decode('utf-8')
       peerConnectServerSocket.send(bytes("SUCCESS", "utf-8"))
-      list_peer = json.loads(data)
-
+      try:
+        list_peer = json.loads(data)
+      except json.JSONDecodeError as e:
+        print(f"JSON decode error: {e} - Data: {data}")
       #---------------Close connection--------------------------------------
       peerConnectServerSocket.send(bytes("Cancel", "utf-8"))
       peerConnectServerSocket.recv(4096)  # success
@@ -1243,6 +1248,7 @@ class PEER_BE():
         messagebox.showinfo("Not success","Now there are no active peer that has this file/folder!")
         return
       torrent_info = self.getTorrentInfo(file_name, list_peer[0])
+      print(list_peer)
       #---------------------------------------------------------------------
 
       number_of_pieces = 0
@@ -1285,9 +1291,9 @@ class PEER_BE():
       piece_map = {}
       print(f"Length of piece_array: {len(piece_array)}")
       for idx, (ih, index) in enumerate(all_piece_indices):
-          print(f"Processing info hash: {ih}, index: {index}, piece_array index: {idx}")
+          #print(f"Processing info hash: {ih}, index: {index}, piece_array index: {idx}")
           if index >= len(piece_array):
-              print(f"Warning: Index {index} is out of range for piece_array of length {len(piece_array)}")
+              #print(f"Warning: Index {index} is out of range for piece_array of length {len(piece_array)}")
               continue  # Hoặc xử lý theo cách khác
           if ih not in piece_map:
               piece_map[ih] = {}
@@ -1326,13 +1332,12 @@ class PEER_BE():
                 piece_data = piece_map.get(info_hash, {}).get(index)
                 if piece_data is not None:
                     final_file.write(piece_data)  # Ghi dữ liệu vào tệp
-                else:
-                    print(f"Lỗi: Thiếu dữ liệu cho mảnh {index} của tệp {file_path}")
 
       print("DOWNLOAD SUCCESS")
       messagebox.showinfo("notification","DOWNLOAD SUCCESS!")
     except (socket.timeout, socket.error) as e:
        print(f"Network error occurred: {e}")
+       messagebox.showerror("notification","DOWNLOAD FAIL!")
       
   def download_piece(self, start, end, all_piece_indices, peer, file_name, number_of_pieces, piece_array):
     try:

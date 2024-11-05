@@ -346,10 +346,6 @@ class SERVER_BE:
           return "wrong password"
      else:
         return "user doesn't exist!"
-
-  def seekListOfPeers(self,serverhost,serverport):
-    #---------------------------------
-    print()
   
   def implementDownload(self, conn):  
     #--------------------Receive the info_hash want to down----------------------------
@@ -358,9 +354,9 @@ class SERVER_BE:
     #------------------------------------------------------------------------------------
     
     #-----------------------Receive serverHost and serverPort----------------------------------
-    serverhost= str(conn.recv(4096), "utf-8")
+    peerhost= str(conn.recv(4096), "utf-8")
     conn.send(bytes("SUCCESS", "utf-8"))
-    serverport= int(str(conn.recv(4096), "utf-8"))
+    peerport= int(str(conn.recv(4096), "utf-8"))
     conn.send(bytes("SUCCESS", "utf-8"))
     #---------------------------------------------------------------------------------------
     
@@ -370,6 +366,7 @@ class SERVER_BE:
     documents = client_db.find(
       {
         "info_hash":info_hash,
+        "ip_add": {"$ne" : peerhost},
         "state": { "$ne": "off" }
       },
       {
