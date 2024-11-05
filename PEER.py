@@ -145,12 +145,14 @@ class PEER_FE(ctk.CTk):
   
   def executeChooseTrackerButton(self, location):
     if location == "HaNoi":
-      PEER_BEObject.serverHost = "172.31.0.1"
-      PEER_BEObject.serverPort = 85
+      PEER_BEObject.serverHost = "192.168.1.19"
+      PEER_BEObject.serverPort = 8080
+      print(PEER_BEObject.serverHost)
+      print(PEER_BEObject.serverPort)
       self.nameServer = "Ha Noi Server"
     elif location == "HoChiMinh":
-      PEER_BEObject.serverHost = "172.31.0.1"
-      PEER_BEObject.serverPort = 85
+      PEER_BEObject.serverHost = "192.168.1.19"
+      PEER_BEObject.serverPort = 8080
       self.nameServer = "Ho Chi Minh Server"
     self.switch_frame(self.accountPage)
     
@@ -365,17 +367,34 @@ class PEER_FE(ctk.CTk):
     return self.frameExecuteUploadButton
 
   def browseFile(self, upload_entry):
-    # Tạo cửa sổ chọn file hoặc thư mục
-    file_path = tk.filedialog.askopenfilename(title="Select a File",
-                                               filetypes=(("All Files", "*.*"),))
+    # Tạo cửa sổ tùy chọn để chọn file hoặc thư mục
+    option_window = ctk.CTkToplevel(self.master)
+    option_window.title("Select an Option")
+
+    ctk.CTkLabel(option_window, text="Choose an option:").pack(pady=10)
+
+    file_button = ctk.CTkButton(option_window, text="Choose File", command=lambda: self.select_file(upload_entry, option_window))
+    file_button.pack(pady=5)
+
+    folder_button = ctk.CTkButton(option_window, text="Choose Folder", command=lambda: self.select_folder(upload_entry, option_window))
+    folder_button.pack(pady=5)
+
+  def select_file(self, upload_entry, option_window):
+    # Tạo cửa sổ chọn file
+    file_path = ctk.filedialog.askopenfilename(title="Select a File",
+                                                filetypes=(("All Files", "*.*"),))
     if file_path:  # Nếu chọn file
-        upload_entry.delete(0, tk.END)  # Xóa nội dung trước đó của entry
+        upload_entry.delete(0, ctk.END)  # Xóa nội dung trước đó của entry
         upload_entry.insert(0, file_path)  # Chèn đường dẫn của file được chọn
-    else:  # Nếu không chọn file, kiểm tra xem người dùng có chọn thư mục không
-        folder_path = tk.filedialog.askdirectory(title="Select a Folder")
-        if folder_path:  # Nếu chọn thư mục
-            upload_entry.delete(0, tk.END)  # Xóa nội dung trước đó của entry
-            upload_entry.insert(0, folder_path)  # Chèn đường dẫn của thư mục được chọn
+    option_window.destroy()  # Đóng cửa sổ tùy chọn
+
+  def select_folder(self, upload_entry, option_window):
+    # Tạo cửa sổ chọn thư mục
+    folder_path = ctk.filedialog.askdirectory(title="Select a Folder")
+    if folder_path:  # Nếu chọn thư mục
+        upload_entry.delete(0, ctk.END)  # Xóa nội dung trước đó của entry
+        upload_entry.insert(0, folder_path)  # Chèn đường dẫn của thư mục được chọn
+    option_window.destroy()  # Đóng cửa sổ tùy chọn
   
   def create_torrent(self, path):
     piece_length = 524288  # 512KB cho mỗi piece
@@ -1264,9 +1283,14 @@ class PEER_BE():
       
       # Tạo từ điển để ánh xạ dữ liệu
       piece_map = {}
+      print(f"Length of piece_array: {len(piece_array)}")
       for idx, (ih, index) in enumerate(all_piece_indices):
+          print(f"Processing info hash: {ih}, index: {index}, piece_array index: {idx}")
+          if index >= len(piece_array):
+              print(f"Warning: Index {index} is out of range for piece_array of length {len(piece_array)}")
+              continue  # Hoặc xử lý theo cách khác
           if ih not in piece_map:
-            piece_map[ih] = {}
+              piece_map[ih] = {}
           piece_map[ih][index] = piece_array[idx]  # Ánh xạ mảnh dữ liệu theo info_hash và index
 
       # Kiểm tra nếu là file đơn hoặc thư mục
@@ -1341,7 +1365,7 @@ class PEER_BE():
       #------------------------------------------------------------------
       
       #----------------- Truyền file theo all_piece_indices ----------------
-      start_point = 0
+      start_point = start
 
       for i in all_piece_indices[start:end]:  # Sử dụng khoảng từ start đến end-1
         piece_data = peerConnectPeerSocket.recv(subFileSize)
@@ -1351,25 +1375,7 @@ class PEER_BE():
           print("KHONG CO DU LIEU")
           break
         piece_array[start_point] = piece_data
-        start_point+=1
-
-        
-      """#----------------response for each piece which received-------------------
-      current_position = start
-
-      while current_position < end:
-          # Nhận từng piece có kích thước subFileSize
-          piece_data = peerConnectPeerSocket.recv(subFileSize)
-          
-          if not piece_data:
-            break
-          piece_array[current_position] = piece_data
-          # Xác nhận đã nhận dữ liệu
-          peerConnectPeerSocket.send(bytes("SUCCESS", "utf-8"))
-
-          # Cập nhật vị trí hiện tại
-          current_position += 1
-      print(f"Tải thành công từ {start} tới {end}")"""       
+        start_point+=1    
       
     except ConnectionResetError as e:
        print(f"Lỗi kết nối: {e}")
@@ -1399,8 +1405,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
       
 if __name__ == "__main__":
-    peerHost= socket.gethostbyname_ex(socket.gethostname())[2][1]
-    # print(peerHost)
+    peerHost= socket.gethostbyname_ex(socket.gethostname())[2][0]
+    print(peerHost)
     peerPort= 2000
     
     PEER_BEObject= PEER_BE(peerHost, peerPort)
